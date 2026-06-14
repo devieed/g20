@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://g20tracker.z-rex.net/sitemap.xml
