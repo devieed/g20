@@ -5,11 +5,14 @@
       'is-dropped': tester.dropped,
       'is-completed': status === 'completed' && !tester.dropped,
       'is-broken': status === 'broken' && !tester.dropped,
+      'is-demo': isDemo,
     }"
   >
+    <div v-if="isDemo" class="demo-banner">{{ t('demoHint') }}</div>
     <div class="card-top">
       <div class="card-name-row">
         <span class="card-name">{{ tester.name }}</span>
+        <span v-if="isDemo" class="badge badge-demo">{{ t('demoBadge') }}</span>
         <span class="badge" :class="tester.type === 'Exchange' ? 'badge-exchange' : 'badge-local'">
           {{ t(tester.type === 'Exchange' ? 'exchange' : 'local') }}
         </span>
@@ -139,6 +142,7 @@ import { useI18n } from '../i18n/index'
 import { formatDate, getDateForDay } from '../utils/date'
 import { downloadTesterCsv } from '../utils/export'
 import { DAY_BOX_COLLAPSE_THRESHOLD } from '../utils/constants'
+import { isDemoTester } from '../utils/demoTester'
 
 const props = defineProps({
   tester: { type: Object, required: true },
@@ -150,6 +154,7 @@ const { t, locale } = useI18n()
 
 const showDeleteConfirm = ref(false)
 const isExpanded = ref(false)
+const isDemo = computed(() => isDemoTester(props.tester))
 
 const status = computed(() => store.getTesterStatus(props.tester))
 const currentDay = computed(() => store.getTesterCurrentDay(props.tester))

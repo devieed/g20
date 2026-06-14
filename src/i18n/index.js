@@ -107,6 +107,8 @@ export const translations = {
     aboutG20: 'About G20',
     privacyPolicy: 'Privacy Policy',
     termsOfUse: 'Terms of Use',
+    demoBadge: 'DEMO',
+    demoHint: 'Sample data for preview — safe to delete anytime.',
   },
   ZH: {
     title: 'G20',
@@ -194,6 +196,8 @@ export const translations = {
     boxLegendReplyOnly: '蓝 = 已回测',
     btnLabelTheir: '对方 → 我',
     btnLabelMine: '我 → 对方',
+    demoBadge: '演示',
+    demoHint: '这是示例数据，用于预览界面效果，可随时删除。',
   },
   ID: {
     title: 'G20',

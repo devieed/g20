@@ -637,6 +637,30 @@ button {
 .tester-card.is-dropped { opacity: 0.5; }
 .tester-card.is-completed { border-color: rgba(74, 222, 128, 0.2); }
 .tester-card.is-broken { border-color: rgba(251, 191, 36, 0.2); }
+.tester-card.is-demo {
+  border-color: rgba(251, 191, 36, 0.45);
+  border-style: dashed;
+}
+
+.badge-demo {
+  background: var(--orange-dim);
+  color: var(--orange);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.demo-banner {
+  margin: -1rem -1rem 0.75rem;
+  padding: 0.45rem 0.85rem;
+  background: rgba(251, 191, 36, 0.1);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--orange);
+  line-height: 1.45;
+  text-align: center;
+}
 
 .card-top {
   display: flex;
@@ -736,9 +760,14 @@ button {
   border-color: var(--green);
   font-weight: 700;
 }
-.btn-active-today:hover:not(:disabled) {
+.btn-active-today:hover:not(:disabled):not(.activated) {
   border-color: var(--green);
   color: var(--green);
+}
+.btn-active-today.activated:hover:not(:disabled) {
+  background: #3dd472;
+  border-color: #3dd472;
+  color: #052e16;
 }
 
 .btn-i-replied {
@@ -752,9 +781,14 @@ button {
   border-color: var(--blue);
   font-weight: 700;
 }
-.btn-i-replied:hover:not(:disabled) {
+.btn-i-replied:hover:not(:disabled):not(.activated) {
   border-color: var(--blue);
   color: var(--blue);
+}
+.btn-i-replied.activated:hover:not(:disabled) {
+  background: #4d9ef8;
+  border-color: #4d9ef8;
+  color: #0f172a;
 }
 
 .btn-active-today:disabled,

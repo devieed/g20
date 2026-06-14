@@ -2,6 +2,7 @@ import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { getTodayStr, getDateForDay, getCurrentDayNum, isStreakIntact, getCompletedDaysCount, addDays, dateToStr } from '../utils/date'
 import { clampTotalDays } from '../utils/constants'
+import { createDemoTester, hasUsedAppBefore, markOnboardingDone } from '../utils/demoTester'
 
 function loadFromStorage(key, fallback) {
   try {
@@ -24,8 +25,19 @@ function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2)
 }
 
+/** 仅首次打开网站时注入示例任务；老用户或已标记过的用户跳过 */
+function applyFirstVisitDemo(testersRef) {
+  if (hasUsedAppBefore()) {
+    markOnboardingDone()
+    return
+  }
+  testersRef.value.push(createDemoTester())
+  markOnboardingDone()
+}
+
 export const useTestersStore = defineStore('testers', () => {
   const testers = ref(loadFromStorage('testers', []))
+  applyFirstVisitDemo(testers)
   const settings = ref(loadFromStorage('settings', {
     language: 'auto',
     targetCount: 12,
