@@ -97,6 +97,25 @@
               <button class="number-step-btn" @click="adjustDays(1)">+</button>
             </div>
           </div>
+
+          <template v-if="!isEdit">
+            <div class="form-group">
+              <label class="form-label">{{ t('preCompletedDays') }}</label>
+              <div class="number-input-row">
+                <button class="number-step-btn" @click="adjustPreCompleted(-1)">−</button>
+                <input
+                  type="number"
+                  class="form-input"
+                  v-model.number="form.preCompletedDays"
+                  min="0"
+                  :max="form.totalDays"
+                  @blur="clampPreCompleted()"
+                />
+                <button class="number-step-btn" @click="adjustPreCompleted(1)">+</button>
+              </div>
+              <div class="form-hint">{{ t('preCompletedDaysHint') }}</div>
+            </div>
+          </template>
         </div>
         <div class="modal-footer">
           <button class="btn btn-ghost" @click="$emit('close')">{{ t('cancel') }}</button>
@@ -112,7 +131,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useTestersStore } from '../stores/useTesters'
 import { useI18n } from '../i18n/index'
 import { clampTotalDays, MAX_TOTAL_DAYS } from '../utils/constants'
@@ -133,6 +152,11 @@ const form = ref({
   description: props.tester?.description || '',
   type: props.tester?.type || 'Exchange',
   totalDays: props.tester?.totalDays || store.settings.defaultDays,
+  preCompletedDays: 0,
+})
+
+watch(() => form.value.totalDays, () => {
+  clampPreCompleted()
 })
 
 const tagsInput = ref(props.tester?.tags?.join(', ') || '')
@@ -154,6 +178,18 @@ function adjustDays(delta) {
   form.value.totalDays = clampTotalDays(form.value.totalDays + delta, store.settings.defaultDays)
 }
 
+function clampPreCompleted() {
+  const max = form.value.totalDays
+  form.value.preCompletedDays = Math.max(0, Math.min(max, Number(form.value.preCompletedDays) || 0))
+}
+
+function adjustPreCompleted(delta) {
+  form.value.preCompletedDays = Math.max(
+    0,
+    Math.min(form.value.totalDays, (form.value.preCompletedDays || 0) + delta),
+  )
+}
+
 function submit() {
   if (!form.value.name.trim()) return
   const data = {
@@ -164,7 +200,10 @@ function submit() {
   if (isEdit.value) {
     store.updateTester(props.tester.id, data)
   } else {
-    store.addTester(data)
+    store.addTester({
+      ...data,
+      preCompletedDays: form.value.preCompletedDays || 0,
+    })
   }
   emit('close')
 }

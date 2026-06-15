@@ -1,6 +1,6 @@
 import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
-import { getTodayStr, getDateForDay, getCurrentDayNum, isStreakIntact, getCompletedDaysCount, addDays, dateToStr } from '../utils/date'
+import { getTodayStr, getDateForDay, getCurrentDayNum, isStreakIntact, getCompletedDaysCount, addDays, dateToStr, setupTesterFromPreDays } from '../utils/date'
 import { clampTotalDays } from '../utils/constants'
 import { createDemoTester, hasUsedAppBefore, markOnboardingDone } from '../utils/demoTester'
 
@@ -44,6 +44,10 @@ export const useTestersStore = defineStore('testers', () => {
     defaultDays: 14,
   }))
   const tagFilter = ref(null)
+  /** null=不限, true=仅今日已活跃, false=仅今日未活跃 */
+  const activeTodayFilter = ref(null)
+  /** null=不限, true=仅今日已回测, false=仅今日未回测 */
+  const repliedTodayFilter = ref(null)
   const showDropped = ref(false)
 
   // 自动持久化到 localStorage
@@ -107,26 +111,22 @@ export const useTestersStore = defineStore('testers', () => {
     return [...tags].sort()
   })
 
-  /** 根据标签和退出状态筛选后的列表 */
+  /** 根据标签与今日状态筛选；保持添加顺序，不做今日勾选排序 */
   const filteredTesters = computed(() => {
     let list = showDropped.value ? testers.value : activeTestersList.value
     if (tagFilter.value) {
       list = list.filter(t => t.tags?.includes(tagFilter.value))
     }
-    // 排序：未完成且条件好的排前面，已完成排后面，已退出排最后
+    if (activeTodayFilter.value !== null) {
+      list = list.filter(t => !!t.checks[todayStr.value]?.activeToday === activeTodayFilter.value)
+    }
+    if (repliedTodayFilter.value !== null) {
+      list = list.filter(t => !!t.checks[todayStr.value]?.iReplied === repliedTodayFilter.value)
+    }
+    const order = new Map(testers.value.map((t, i) => [t.id, i]))
     return [...list].sort((a, b) => {
       if (a.dropped !== b.dropped) return a.dropped ? 1 : -1
-      const aDone = getCompletedDaysCount(a) >= a.totalDays
-      const bDone = getCompletedDaysCount(b) >= b.totalDays
-      if (aDone !== bDone) return aDone ? 1 : -1
-      // 今日未完成 activeToday 的排前面，其次未完成 iReplied
-      const aChecked = !!a.checks[todayStr.value]?.activeToday
-      const bChecked = !!b.checks[todayStr.value]?.activeToday
-      if (aChecked !== bChecked) return aChecked ? 1 : -1
-      const aReplied = !!a.checks[todayStr.value]?.iReplied
-      const bReplied = !!b.checks[todayStr.value]?.iReplied
-      if (aReplied !== bReplied) return aReplied ? 1 : -1
-      return 0
+      return (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0)
     })
   })
 
@@ -162,6 +162,9 @@ export const useTestersStore = defineStore('testers', () => {
   // ---- 操作 ----
 
   function addTester(data) {
+    const totalDays = clampTotalDays(data.totalDays, settings.value.defaultDays)
+    const preDays = Math.max(0, Math.min(Math.floor(Number(data.preCompletedDays) || 0), totalDays))
+    const { joinedAt, checks } = setupTesterFromPreDays(preDays)
     testers.value.push({
       id: genId(),
       name: data.name.trim(),
@@ -169,10 +172,10 @@ export const useTestersStore = defineStore('testers', () => {
       description: (data.description || '').trim(),
       type: data.type || 'Exchange',
       tags: data.tags || [],
-      totalDays: clampTotalDays(data.totalDays, settings.value.defaultDays),
-      joinedAt: getTodayStr(),
+      totalDays,
+      joinedAt,
       dropped: false,
-      checks: {},
+      checks,
     })
   }
 
@@ -220,6 +223,19 @@ export const useTestersStore = defineStore('testers', () => {
 
   function setTagFilter(tag) {
     tagFilter.value = tagFilter.value === tag ? null : tag
+  }
+
+  function setActiveTodayFilter(value) {
+    activeTodayFilter.value = activeTodayFilter.value === value ? null : value
+  }
+
+  function setRepliedTodayFilter(value) {
+    repliedTodayFilter.value = repliedTodayFilter.value === value ? null : value
+  }
+
+  function clearStatusFilters() {
+    activeTodayFilter.value = null
+    repliedTodayFilter.value = null
   }
 
   function updateSettings(data) {
@@ -282,6 +298,8 @@ export const useTestersStore = defineStore('testers', () => {
     testers,
     settings,
     tagFilter,
+    activeTodayFilter,
+    repliedTodayFilter,
     showDropped,
     todayStr,
     activeTestersList,
@@ -305,6 +323,9 @@ export const useTestersStore = defineStore('testers', () => {
     toggleIReplied,
     toggleDropped,
     setTagFilter,
+    setActiveTodayFilter,
+    setRepliedTodayFilter,
+    clearStatusFilters,
     updateSettings,
     toggleShowDropped,
     getTesterStatus,

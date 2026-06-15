@@ -80,6 +80,21 @@ export function isStreakIntact(tester) {
   return true
 }
 
+/** 根据「已测天数」推算加入日并预填互测+回测记录 */
+export function setupTesterFromPreDays(preDays, today = getTodayStr()) {
+  const n = Math.max(0, Math.floor(Number(preDays) || 0))
+  if (n === 0) {
+    return { joinedAt: today, checks: {} }
+  }
+  const joinedAt = addDays(today, -n)
+  const checks = {}
+  for (let d = 1; d <= n; d++) {
+    const date = getDateForDay(joinedAt, d)
+    checks[date] = { activeToday: true, iReplied: true }
+  }
+  return { joinedAt, checks }
+}
+
 /** 统计已完成（activeToday 为 true）的天数 */
 export function getCompletedDaysCount(tester) {
   return Object.values(tester.checks).filter(c => c.activeToday).length

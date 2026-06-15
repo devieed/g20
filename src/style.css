@@ -742,53 +742,66 @@ button {
   border-radius: var(--radius-sm);
   font-size: 0.8125rem;
   font-weight: 600;
-  transition: background var(--transition), color var(--transition), border-color var(--transition);
+  transition: background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
+  cursor: pointer;
 }
 
 .btn-active-today {
-  background: rgba(74, 222, 128, 0.06);
-  color: var(--text-secondary);
-  border: 2px solid rgba(74, 222, 128, 0.25);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  border: 2px dashed rgba(113, 113, 122, 0.55);
+  box-shadow: none;
 }
 .btn-active-today.activated {
   background: var(--green);
-  color: #052e16;
-  border-color: var(--green);
+  color: #022c14;
+  border: 2px solid var(--green);
+  border-style: solid;
   font-weight: 700;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.22);
 }
 .btn-active-today:hover:not(:disabled):not(.activated) {
-  border-color: var(--green);
+  border-color: rgba(74, 222, 128, 0.55);
+  border-style: solid;
   color: var(--green);
+  background: rgba(74, 222, 128, 0.08);
 }
 .btn-active-today.activated:hover:not(:disabled) {
   background: #3dd472;
   border-color: #3dd472;
-  color: #052e16;
+  color: #022c14;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.28);
 }
 
 .btn-i-replied {
-  background: rgba(96, 165, 250, 0.06);
-  color: var(--text-secondary);
-  border: 2px solid rgba(96, 165, 250, 0.25);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  border: 2px dashed rgba(113, 113, 122, 0.55);
+  box-shadow: none;
 }
 .btn-i-replied.activated {
   background: var(--blue);
-  color: #0f172a;
-  border-color: var(--blue);
+  color: #0c1a3a;
+  border: 2px solid var(--blue);
+  border-style: solid;
   font-weight: 700;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.22);
 }
 .btn-i-replied:hover:not(:disabled):not(.activated) {
-  border-color: var(--blue);
+  border-color: rgba(96, 165, 250, 0.55);
+  border-style: solid;
   color: var(--blue);
+  background: rgba(96, 165, 250, 0.08);
 }
 .btn-i-replied.activated:hover:not(:disabled) {
   background: #4d9ef8;
   border-color: #4d9ef8;
-  color: #0f172a;
+  color: #0c1a3a;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.28);
 }
 
 .btn-active-today:disabled,
@@ -976,7 +989,6 @@ button {
 .list-leave-active { transition: opacity 0.15s ease; }
 .list-enter-from,
 .list-leave-to { opacity: 0; }
-.list-move { transition: transform 0.2s ease; }
 
 /* ==================== NUMBER INPUT ==================== */
 .number-input-row {
